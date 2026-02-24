@@ -10,7 +10,7 @@ public class Order
         products.Add(product);
     }
 
-    public double TotalPrice()
+    public virtual double TotalPrice()
     {
         return products.Sum(p => p.Price);
     }
