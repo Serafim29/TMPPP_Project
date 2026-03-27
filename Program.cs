@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 class Program
 {
@@ -50,6 +50,51 @@ class Program
         Console.WriteLine($"Clonat: {clonedLaptop}");
         Logger.Instance.Log("Prototype a fost folosit pentru clonare.");
 
+        Console.WriteLine("\n--- 5. ADAPTER ---");
+        // Testam plata prin Stripe (API Extern incompatibil) folosind Adaptorul
+        StripePaymentAPI stripeApi = new StripePaymentAPI();
+        IPaymentMethod stripeAdapter = new StripePaymentAdapter(stripeApi);
+        stripeAdapter.Pay(1250); // Apelam metoda noastra standard care 'vorbeste' de fapt cu Stripe
+        
+        Console.WriteLine("\n--- 6. BRIDGE ---");
+        // Decuplam logica de notificare (Abstraction) de implementarea efectiva (Implementor)
+        INotificationSender emailSender = new EmailSender();
+        INotificationSender smsSender = new SmsSender();
+
+        Notification emailNotification = new OrderNotification(emailSender);
+        emailNotification.Notify("Comanda #102 a fost confirmata.");
+
+        Notification smsNotification = new OrderNotification(smsSender);
+        smsNotification.Notify("Comanda #103 a fost expediata.");
+
+        Console.WriteLine("\n--- 7. FACADE ---");
+        // Simplificam interactiunea utilizatorului cu intreg subsistemul complex de plasare a comenzilor
+        ECommerceFacade facade = new ECommerceFacade();
+        List<Product> productsToOrder = new List<Product> { laptop, tshirt };
+        
+        // Plasare comanda complet mascand detaliile despre abstract factory, order builder, etc.
+        facade.PlaceOrder(onlineFactory, productsToOrder, smsSender);
+
+        Console.WriteLine("\n--- 8. COMPOSITE ---");
+        ProductBundle techBundle = new ProductBundle(500, "Gamer Tech Bundle");
+        techBundle.AddProduct(laptop);
+        
+        Product mouse = new Product(501, "Gaming Mouse", 300);
+        Product keyboard = new Product(502, "Mechanical Keyboard", 500);
+        
+        ProductBundle accessoriesBundle = new ProductBundle(503, "Accessories Bundle");
+        accessoriesBundle.AddProduct(mouse);
+        accessoriesBundle.AddProduct(keyboard);
+
+        techBundle.AddProduct(accessoriesBundle);
+        
+        Console.WriteLine("Structura pachetului:");
+        techBundle.Display();
+        
+        Console.WriteLine($"\nPret total pachet calculat dinamic: ${techBundle.Price}");
+        Logger.Instance.Log("Composite a fost folosit pentru structura pachetului Gamer Tech Bundle.");
+
+        Console.WriteLine("\nApasa orice tasta pentru a inchide aplicatia...");
         Console.ReadKey();
     }
 
