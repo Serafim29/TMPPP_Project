@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 class Program
 {
@@ -51,13 +51,11 @@ class Program
         Logger.Instance.Log("Prototype a fost folosit pentru clonare.");
 
         Console.WriteLine("\n--- 5. ADAPTER ---");
-        // Testam plata prin Stripe (API Extern incompatibil) folosind Adaptorul
         StripePaymentAPI stripeApi = new StripePaymentAPI();
         IPaymentMethod stripeAdapter = new StripePaymentAdapter(stripeApi);
-        stripeAdapter.Pay(1250); // Apelam metoda noastra standard care 'vorbeste' de fapt cu Stripe
+        stripeAdapter.Pay(1250); 
         
         Console.WriteLine("\n--- 6. BRIDGE ---");
-        // Decuplam logica de notificare (Abstraction) de implementarea efectiva (Implementor)
         INotificationSender emailSender = new EmailSender();
         INotificationSender smsSender = new SmsSender();
 
@@ -68,11 +66,9 @@ class Program
         smsNotification.Notify("Comanda #103 a fost expediata.");
 
         Console.WriteLine("\n--- 7. FACADE ---");
-        // Simplificam interactiunea utilizatorului cu intreg subsistemul complex de plasare a comenzilor
         ECommerceFacade facade = new ECommerceFacade();
         List<Product> productsToOrder = new List<Product> { laptop, tshirt };
         
-        // Plasare comanda complet mascand detaliile despre abstract factory, order builder, etc.
         facade.PlaceOrder(onlineFactory, productsToOrder, smsSender);
 
         Console.WriteLine("\n--- 8. COMPOSITE ---");
@@ -93,6 +89,53 @@ class Program
         
         Console.WriteLine($"\nPret total pachet calculat dinamic: ${techBundle.Price}");
         Logger.Instance.Log("Composite a fost folosit pentru structura pachetului Gamer Tech Bundle.");
+
+        Console.WriteLine("\n=== LABORATORUL 5: Paternuri Structurale ===");
+
+        Console.WriteLine("\n--- 9. FLYWEIGHT ---");
+        CategoryFactory categoryFactory = new CategoryFactory();
+        
+        Product p1 = new Product(101, "Laptop ZenBook", 4500);
+        p1.Category = categoryFactory.GetCategory("Electronice");
+        
+        Product p2 = new Product(102, "Mouse Wireless", 150);
+        p2.Category = categoryFactory.GetCategory("Electronice"); 
+        
+        Product p3 = new Product(103, "Tricou Polo", 90);
+        p3.Category = categoryFactory.GetCategory("Imbracaminte");
+        
+        p1.Display();
+        p2.Display();
+        p3.Display();
+        Console.WriteLine($"Total categorii unice in memorie: {categoryFactory.GetTotalCategoriesCreated()}");
+
+        Console.WriteLine("\n--- 10. DECORATOR ---");
+        ProductDecorator giftWrappedLaptop = new GiftWrapDecorator(p1);
+        Console.WriteLine("Inainte de decorare:");
+        p1.Display();
+        Console.WriteLine("Dupa adaugarea optiunii de impachetare cadou (Decorator):");
+        giftWrappedLaptop.Display();
+
+        Console.WriteLine("\n--- 11. PROXY ---");
+        IDiscountService proxyService = new DiscountProxy("UserNormal");
+        Console.WriteLine("Client normal incearca codul VIP20:");
+        double price1 = proxyService.ApplyDiscount(giftWrappedLaptop.Price, "VIP20");
+        Console.WriteLine($"Pret rezultat: {price1}");
+
+        Console.WriteLine("\nAdmin incearca codul VIP20:");
+        IDiscountService adminProxyService = new DiscountProxy("Admin");
+        double price2 = adminProxyService.ApplyDiscount(giftWrappedLaptop.Price, "VIP20");
+        Console.WriteLine($"Pret rezultat: {price2}");
+
+        Console.WriteLine("\n--- 12. BRIDGE (Media Player din Lab 5) ---");
+        IMediaDevice phone = new PhoneDevice();
+        IMediaDevice tv = new TVDevice();
+
+        MediaFile audioOnPhone = new AudioMedia("Podcast_Tech.mp3", phone);
+        audioOnPhone.Render();
+
+        MediaFile videoOnTv = new VideoMedia("Review_Laptop.mp4", tv);
+        videoOnTv.Render();
 
         Console.WriteLine("\nApasa orice tasta pentru a inchide aplicatia...");
         Console.ReadKey();
