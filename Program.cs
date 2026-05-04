@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 class Program
 {
@@ -136,6 +136,87 @@ class Program
 
         MediaFile videoOnTv = new VideoMedia("Review_Laptop.mp4", tv);
         videoOnTv.Render();
+
+        Console.WriteLine("\n=== LABORATORUL 6: Paternuri Comportamentale ===");
+
+        Console.WriteLine("\n--- 13. STRATEGY ---");
+        Order strategyOrder = new Order();
+        strategyOrder.AddProduct(laptop);
+        
+        Console.WriteLine("Livrare Standard:");
+        strategyOrder.SetShippingStrategy(new StandardShippingStrategy());
+        Console.WriteLine($"Cost total (cu livrare): {strategyOrder.CalculateTotalWithShipping()}");
+
+        Console.WriteLine("Livrare Express:");
+        strategyOrder.SetShippingStrategy(new ExpressShippingStrategy());
+        Console.WriteLine($"Cost total (cu livrare): {strategyOrder.CalculateTotalWithShipping()}");
+
+        Console.WriteLine("\n--- 14. OBSERVER ---");
+        Order observedOrder = new Order();
+        observedOrder.SetShippingStrategy(new StandardShippingStrategy());
+        observedOrder.AddProduct(tshirt);
+
+        IOrderObserver customerObs = new CustomerNotifier("client@email.com");
+        IOrderObserver adminObs = new StoreAdminNotifier();
+
+        observedOrder.Attach(customerObs);
+        observedOrder.Attach(adminObs);
+
+        Console.WriteLine("Schimbare status in Procesare...");
+        observedOrder.Status = "Procesare";
+        
+        Console.WriteLine("Schimbare status in Expediat...");
+        observedOrder.Status = "Expediat";
+
+        Console.WriteLine("\n--- 15. COMMAND & 16. MEMENTO ---");
+        ShoppingCart cart = new ShoppingCart();
+        ShoppingCartInvoker invoker = new ShoppingCartInvoker();
+        CartCaretaker caretaker = new CartCaretaker(cart);
+
+        Console.WriteLine("Adaugare Laptop in cos...");
+        ICommand addLaptop = new AddToCartCommand(cart, laptop);
+        invoker.ExecuteCommand(addLaptop);
+        
+        Console.WriteLine("Adaugare Mouse in cos...");
+        ICommand addMouse = new AddToCartCommand(cart, mouse);
+        invoker.ExecuteCommand(addMouse);
+        
+        Console.WriteLine($"Total cos: {cart.GetTotal()}");
+
+        Console.WriteLine("Salvam starea cosului (Memento)...");
+        caretaker.Backup();
+
+        Console.WriteLine("Adaugam Tastatura in cos...");
+        ICommand addKeyboard = new AddToCartCommand(cart, keyboard);
+        invoker.ExecuteCommand(addKeyboard);
+        Console.WriteLine($"Total cos dupa tastatura: {cart.GetTotal()}");
+
+        Console.WriteLine("Undo ultima comanda (Command Undo - eliminam tastatura)...");
+        invoker.UndoLastCommand();
+        Console.WriteLine($"Total cos dupa Undo: {cart.GetTotal()}");
+
+        Console.WriteLine("Golim cosul (Simulare stergere accidentala)...");
+        cart.Remove(laptop);
+        cart.Remove(mouse);
+        Console.WriteLine($"Total cos dupa golire: {cart.GetTotal()}");
+
+        Console.WriteLine("Restaurare cos din salvarea anterioara (Memento)...");
+        caretaker.Undo();
+        Console.WriteLine($"Total cos dupa restaurare: {cart.GetTotal()}");
+
+        Console.WriteLine("\n--- 17. ITERATOR ---");
+        ProductCollection collection = new ProductCollection();
+        collection.AddProduct(laptop);
+        collection.AddProduct(mouse);
+        collection.AddProduct(keyboard);
+
+        Console.WriteLine("Parcurgere produse din colectie folosind Iterator:");
+        IIterator<Product> iterator = collection.CreateIterator();
+        while (iterator.HasNext())
+        {
+            Product p = iterator.Next();
+            Console.WriteLine($"- {p.Name} (${p.Price})");
+        }
 
         Console.WriteLine("\nApasa orice tasta pentru a inchide aplicatia...");
         Console.ReadKey();

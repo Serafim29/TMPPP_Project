@@ -11,8 +11,12 @@ public abstract class ProductDecorator : Product
 
     public override double Price 
     { 
-        get => _product.Price; 
-        set => _product.Price = value; 
+        get => _product != null ? _product.Price : base.Price; 
+        set 
+        {
+            if (_product != null) _product.Price = value;
+            else base.Price = value;
+        }
     }
 
     public override void Display(int depth = 0)
