@@ -1,11 +1,12 @@
 using System;
+using ECommerceApp.Visitors;
 
 public class Product : IPrototype<Product>
 {
     public int Id { get; set; }
     public string Name { get; set; }
     public virtual double Price { get; set; }
-    public ProductCategory Category { get; set; } // Starea extrinseca pt. Flyweight
+    public ProductCategory Category { get; set; } 
 
 
     public Product(int id, string name, double price)
@@ -28,5 +29,10 @@ public class Product : IPrototype<Product>
             Console.Write(new string('-', depth) + "   -> ");
             Category.DisplayCategoryInfo();
         }
+    }
+
+    public virtual void Accept(IProductVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 }

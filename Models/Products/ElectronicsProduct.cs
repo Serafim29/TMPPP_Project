@@ -1,3 +1,5 @@
+using ECommerceApp.Visitors;
+
 public class ElectronicsProduct : Product
 {
     public int WarrantyPeriod { get; private set; }
@@ -11,5 +13,10 @@ public class ElectronicsProduct : Product
     public override string ToString()
     {
         return $"[Electronics] {Name} (Warranty: {WarrantyPeriod} months) - Lei {Price}";
+    }
+
+    public override void Accept(IProductVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 }

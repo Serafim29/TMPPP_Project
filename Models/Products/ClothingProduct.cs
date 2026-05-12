@@ -1,3 +1,5 @@
+using ECommerceApp.Visitors;
+
 public class ClothingProduct : Product
 {
     public string Size { get; private set; }
@@ -13,5 +15,10 @@ public class ClothingProduct : Product
     public override string ToString()
     {
         return $"[Clothing] {Name} (Size: {Size}, Material: {Material}) - Lei {Price}";
+    }
+
+    public override void Accept(IProductVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 }

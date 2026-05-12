@@ -1,4 +1,10 @@
 using System;
+using System.Collections.Generic;
+using ECommerceApp.ChainOfResponsibility;
+using ECommerceApp.States;
+using ECommerceApp.Mediators;
+using ECommerceApp.TemplateMethod;
+using ECommerceApp.Visitors;
 
 class Program
 {
@@ -217,6 +223,66 @@ class Program
             Product p = iterator.Next();
             Console.WriteLine($"- {p.Name} (${p.Price})");
         }
+
+        Console.WriteLine("\n=== LABORATORUL 7: Paternuri Comportamentale (Partea 2) ===");
+
+        Console.WriteLine("\n--- 18. CHAIN OF RESPONSIBILITY ---");
+        SupportHandler level1 = new Level1Support();
+        SupportHandler level2 = new Level2Support();
+        SupportHandler level3 = new Level3Support();
+        
+        level1.SetNext(level2).SetNext(level3);
+        
+        level1.HandleRequest("Basic", "Am uitat parola");
+        level1.HandleRequest("Technical", "Eroare la procesarea platii pe site");
+        level1.HandleRequest("Critical", "Serverul a picat, site-ul este indisponibil");
+        level1.HandleRequest("Unknown", "Vreau sa schimb culoarea butonului in mov");
+
+        Console.WriteLine("\n--- 19. STATE ---");
+        OrderContext statefulOrder = new OrderContext();
+        statefulOrder.Ship(); // Eroare, nu e platita
+        statefulOrder.Pay();  // Trece in Platita
+        statefulOrder.Pay();  // Deja platita
+        statefulOrder.Ship(); // Trece in Expediata
+        statefulOrder.Cancel(); // Eroare, deja expediata
+
+        Console.WriteLine("\n--- 20. MEDIATOR ---");
+        IChatMediator chatMediator = new SupportChatMediator();
+        ChatUser customer = new CustomerChatUser(chatMediator, "Ionut");
+        ChatUser agent = new SupportAgentChatUser(chatMediator, "Agent Vasile");
+        
+        chatMediator.RegisterUser(customer);
+        chatMediator.RegisterUser(agent);
+        
+        customer.Send("Salut, am o problema cu comanda #105.");
+        agent.Send("Buna ziua, Ionut! Imediat verificam statusul.");
+
+        Console.WriteLine("\n--- 21. TEMPLATE METHOD ---");
+        ReportGenerator salesReport = new SalesReportGenerator();
+        salesReport.GenerateReport();
+        
+        Console.WriteLine();
+        ReportGenerator inventoryReport = new InventoryReportGenerator();
+        inventoryReport.GenerateReport();
+
+        Console.WriteLine("\n--- 22. VISITOR ---");
+        Product pGeneric = new Product(701, "Cablu HDMI", 25);
+        ElectronicsProduct pElectro = new ElectronicsProduct(702, "Monitor 4K", 1500, 24);
+        ClothingProduct pClothing = new ClothingProduct(703, "Geaca Iarna", 350, "XL", "Fleece");
+
+        IProductVisitor taxVisitor = new TaxVisitor();
+        IProductVisitor exportVisitor = new ExportVisitor();
+
+        Console.WriteLine("--- Calculare Taxe (Visitor) ---");
+        pGeneric.Accept(taxVisitor);
+        pElectro.Accept(taxVisitor);
+        pClothing.Accept(taxVisitor);
+
+        Console.WriteLine("--- Export Date (Visitor) ---");
+        pGeneric.Accept(exportVisitor);
+        pElectro.Accept(exportVisitor);
+        pClothing.Accept(exportVisitor);
+
 
         Console.WriteLine("\nApasa orice tasta pentru a inchide aplicatia...");
         Console.ReadKey();
