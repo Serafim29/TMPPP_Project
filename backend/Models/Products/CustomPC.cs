@@ -10,6 +10,6 @@ public class CustomPC : Product
 
     public override string ToString()
     {
-        return $"[Custom PC] {Name} (CPU: {CPU}, RAM: {RAM}, GPU: {GPU}) - Lei {Price}";
+        return $"[Custom PC] {Name} (CPU: {CPU}, RAM: {RAM}, GPU: {GPU}) - ${Price}";
     }
 }

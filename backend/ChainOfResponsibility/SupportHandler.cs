@@ -10,6 +10,6 @@ namespace ECommerceApp.ChainOfResponsibility
             return handler; 
         }
 
-        public abstract void HandleRequest(string issueType, string description);
+        public abstract string HandleRequest(string issueType, string description);
     }
 }
